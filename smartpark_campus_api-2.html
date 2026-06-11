@@ -273,7 +273,7 @@ tr:last-child td{border-bottom:none;}
 <div id="app-screen">
   <div class="topbar">
     <div class="topbar-logo">
-      <img src="logo-umsu.png" alt="UMSU" onerror="this.style.display='none'">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Logo_Universitas_Muhammadiyah_Sumatera_Utara.png/240px-Logo_Universitas_Muhammadiyah_Sumatera_Utara.png" alt="UMSU" onerror="this.style.display='none'">
       <div class="topbar-logo-text">SmartPark UMSU</div>
     </div>
     <div class="topbar-clock" id="clock">--:--:--</div>
@@ -554,7 +554,7 @@ tr:last-child td{border-bottom:none;}
 
 <script>
 // ===== API CONFIG =====
-const API = 'http://localhost:3000/api';
+const API = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin) + '/api';
 function getToken() { return localStorage.getItem('sp_token'); }
 function setToken(t) { localStorage.setItem('sp_token', t); }
 function clearToken() { localStorage.removeItem('sp_token'); }

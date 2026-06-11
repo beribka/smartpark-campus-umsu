@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPark Campus — UMSU</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700;800;900&display=swap');
+:root{--bg:#060910;--bg2:#0d1117;--bg3:#131920;--card:#0f1520;--card2:#141d2b;--border:rgba(56,189,248,0.1);--border2:rgba(56,189,248,0.25);--accent:#38bdf8;--accent2:#34d399;--accent3:#f59e0b;--accent4:#a78bfa;--danger:#f87171;--text:#e2e8f0;--text2:#94a3b8;--text3:#334155;--r:14px;--rs:8px;--glow:0 0 20px rgba(56,189,248,0.15);}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);}
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;background-image:radial-gradient(ellipse 60% 50% at 20% 40%,rgba(56,189,248,.06) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 80% 60%,rgba(167,139,250,.05) 0%,transparent 70%);}
+.auth-wrap{width:440px;max-width:95vw;}
+.auth-logo{text-align:center;margin-bottom:28px;}
+.auth-logo-img{width:100px;height:100px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;}
+.auth-logo-img img{width:100px;height:100px;object-fit:contain;}
+.auth-logo-name{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent),var(--accent4));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.auth-logo-sub{font-size:11px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.auth-logo-uni{font-size:12px;color:var(--text2);margin-top:4px;font-weight:600;}
+.auth-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:28px 32px;box-shadow:var(--glow);}
+.auth-tabs{display:flex;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:3px;margin-bottom:22px;}
+.auth-tab{flex:1;padding:9px;border-radius:6px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;color:var(--text2);transition:all .2s;}
+.auth-tab.active{background:var(--accent);color:#060910;}
+.form-group{margin-bottom:15px;}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.form-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--accent);background:rgba(56,189,248,.04);}
+.form-input::placeholder{color:var(--text3);}
+select.form-input option{background:var(--bg2);}
+.auth-hint{text-align:center;margin-top:14px;font-size:12px;color:var(--text3);line-height:1.8;}
+.auth-hint strong{color:var(--text2);}
+.btn{padding:11px 22px;border-radius:var(--rs);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;letter-spacing:.3px;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:#060910;}.btn-primary:hover{background:#7dd3fc;}
+.btn-success{background:var(--accent2);color:#060910;}.btn-success:hover{background:#6ee7b7;}
+.btn-danger{background:var(--danger);color:#060910;}.btn-danger:hover{background:#fca5a5;}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text);}.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-ghost{background:rgba(56,189,248,.08);border:1px solid var(--border);color:var(--accent);}.btn-ghost:hover{background:rgba(56,189,248,.16);}
+.btn-amber{background:var(--accent3);color:#060910;}
+.btn-purple{background:var(--accent4);color:#fff;}
+.btn-full{width:100%;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.btn-xs{padding:4px 10px;font-size:11px;}
+#app-screen{display:none;height:100vh;flex-direction:column;}
+#app-screen.show{display:flex;}
+.topbar{height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;position:relative;z-index:50;}
+.topbar-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.topbar-logo img{width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(56,189,248,.3));}
+.topbar-logo-text{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent4));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.3px;}
+.topbar-clock{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);padding:4px 12px;border-radius:6px;flex-shrink:0;}
+.topbar-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);flex-shrink:0;}
+.topbar-spacer{flex:1;}
+.topbar-user{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;}
+.topbar-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.topbar-uname{font-size:13px;font-weight:600;}
+.topbar-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
+.role-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+.role-admin{background:rgba(167,139,250,.15);color:var(--accent4);border:1px solid rgba(167,139,250,.3);}
+.role-user{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.25);}
+.app-body{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:220px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.nav{padding:10px 0;flex:1;}
+.nav-section{padding:14px 16px 5px;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .15s;user-select:none;}
+.nav-item:hover{color:var(--text);background:rgba(56,189,248,.05);}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(56,189,248,.08);}
+.nav-icon{width:16px;height:16px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;}
+.sidebar-bottom{padding:14px 16px;border-top:1px solid var(--border);}
+.sidebar-stat{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ss-label{font-size:11px;color:var(--text3);}
+.ss-val{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;}
+.dot-g{background:var(--accent2);box-shadow:0 0 6px var(--accent2);}
+.dot-a{background:var(--accent3);box-shadow:0 0 6px var(--accent3);}
+.main{flex:1;overflow-y:auto;background:var(--bg);}
+.page-header{padding:20px 28px 0;display:flex;align-items:flex-end;justify-content:space-between;}
+.ph-title{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+.ph-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.content{padding:20px 28px 32px;}
+.page{display:none;}
+.page.active{display:block;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;}
+.card-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.mb20{margin-bottom:20px;}
+.mb16{margin-bottom:16px;}
+.metric{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;transition:border-color .2s;}
+.metric:hover{border-color:var(--border2);}
+.metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+.metric-val{font-size:30px;font-weight:800;font-family:'JetBrains Mono',monospace;margin:6px 0 4px;line-height:1;}
+.metric-sub{font-size:11px;color:var(--text2);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.bg{background:rgba(52,211,153,.12);color:var(--accent2);border:1px solid rgba(52,211,153,.3);}
+.ba{background:rgba(245,158,11,.12);color:var(--accent3);border:1px solid rgba(245,158,11,.3);}
+.bb{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.25);}
+.br{background:rgba(248,113,113,.12);color:var(--danger);border:1px solid rgba(248,113,113,.3);}
+.bp{background:rgba(167,139,250,.12);color:var(--accent4);border:1px solid rgba(167,139,250,.3);}
+.scroll-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);}
+tr:hover td{background:rgba(56,189,248,.03);}
+tr:last-child td{border-bottom:none;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg2);padding:4px;border-radius:var(--rs);border:1px solid var(--border);}
+.tab{flex:1;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;color:var(--text2);transition:all .15s;user-select:none;}
+.tab.active{background:var(--accent);color:#060910;}
+.tab:not(.active):hover{color:var(--text);background:rgba(255,255,255,.04);}
+.alert{padding:12px 16px;border-radius:var(--rs);font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.alert-s{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:var(--accent2);}
+.alert-d{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--danger);}
+.alert-i{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--accent);}
+.alert-w{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--accent3);}
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg2);}
+.upload-zone:hover{border-color:var(--accent);background:rgba(56,189,248,.04);}
+.upload-zone.has-file{border-color:var(--accent2);background:rgba(52,211,153,.06);}
+.upload-icon{font-size:28px;margin-bottom:6px;}
+.upload-label{font-size:13px;color:var(--text2);}
+.upload-hint{font-size:11px;color:var(--text3);margin-top:4px;}
+.upload-preview{width:100%;max-height:120px;object-fit:cover;border-radius:var(--rs);margin-top:10px;border:1px solid var(--border);}
+.qr-card{background:#fff;border-radius:var(--r);padding:22px;text-align:center;}
+.qr-header-text{font-size:10px;color:#666;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;font-family:'Outfit',sans-serif;}
+.qr-id-text{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;letter-spacing:2px;color:#111;margin-top:8px;}
+.qr-name-text{font-family:'Outfit',sans-serif;font-size:12px;color:#555;margin-top:3px;}
+.qr-plat-text{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#222;}
+.qr-footer{margin-top:10px;padding:8px;background:#f5f5f5;border-radius:8px;}
+.qr-footer-title{font-size:9px;color:#999;letter-spacing:2px;}
+.qr-footer-name{font-size:11px;color:#555;font-weight:600;font-family:'Outfit',sans-serif;}
+.qr-vehicle-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.qr-veh-btn{flex:1;min-width:120px;padding:10px 14px;border-radius:var(--rs);background:var(--card2);border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;font-family:'Outfit',sans-serif;}
+.qr-veh-btn:hover{border-color:var(--border2);}
+.qr-veh-btn.active{border-color:var(--accent);background:rgba(56,189,248,.08);}
+.qr-veh-btn .vb-plat{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--text);}
+.qr-veh-btn .vb-merk{font-size:11px;color:var(--text2);}
+.cam-wrap{border-radius:var(--r);overflow:hidden;background:#000;margin-bottom:10px;}
+#reader,#reader-out{width:100%;}
+.cam-btn-row{display:flex;gap:10px;margin-top:8px;}
+.cam-status{font-size:12px;color:var(--text2);text-align:center;margin-top:6px;font-family:'JetBrains Mono',monospace;}
+.btn-cam{background:rgba(56,189,248,.12);border:1px solid var(--border2);color:var(--accent);}
+.btn-cam:hover{background:rgba(56,189,248,.22);}
+.btn-cam.active{background:var(--danger);border-color:var(--danger);color:#fff;}
+.scan-row{display:flex;gap:10px;margin-top:14px;}
+.scan-row input{flex:1;}
+.timeline{position:relative;}
+.timeline::before{content:'';position:absolute;left:13px;top:0;bottom:0;width:1px;background:var(--border);}
+.tl-item{display:flex;gap:14px;padding:0 0 14px;position:relative;}
+.tl-dot{width:27px;height:27px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;z-index:1;}
+.tl-g{background:rgba(52,211,153,.12);color:var(--accent2);border:1px solid rgba(52,211,153,.3);}
+.tl-b{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.25);}
+.tl-a{background:rgba(245,158,11,.12);color:var(--accent3);border:1px solid rgba(245,158,11,.3);}
+.tl-body{flex:1;padding-top:4px;}
+.tl-title{font-size:13px;font-weight:700;}
+.tl-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+.tl-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);margin-top:2px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:28px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--glow);}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{cursor:pointer;background:none;border:none;color:var(--text2);font-size:20px;}
+.modal-close:hover{color:var(--danger);}
+.result-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;}
+.r-key{color:var(--text2);font-size:12px;}
+.r-val{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:12px;}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:14px 20px;font-size:13px;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .25s;max-width:320px;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.ts{border-color:rgba(52,211,153,.5);color:var(--accent2);}
+#toast.te{border-color:rgba(248,113,113,.5);color:var(--danger);}
+#toast.ti{border-color:rgba(56,189,248,.5);color:var(--accent);}
+#toast.tw{border-color:rgba(245,158,11,.5);color:var(--accent3);}
+.pending-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:12px;}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.pc-name{font-size:15px;font-weight:700;}
+.pc-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.pc-imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.pc-img-wrap{border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;background:var(--bg2);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;}
+.pc-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.pc-img-placeholder{font-size:24px;color:var(--text3);}
+.pc-img-label{font-size:10px;color:var(--text3);text-align:center;padding:4px;letter-spacing:1px;text-transform:uppercase;}
+.pc-actions{display:flex;gap:8px;}
+.steps{display:flex;gap:0;margin-bottom:24px;}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0;}
+.step.done:not(:last-child)::after{background:var(--accent);}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--bg2);border:2px solid var(--border);color:var(--text3);z-index:1;transition:all .3s;}
+.step.active .step-num{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.1);}
+.step.done .step-num{border-color:var(--accent2);color:#060910;background:var(--accent2);}
+.step-label{font-size:10px;color:var(--text3);margin-top:6px;letter-spacing:.5px;text-align:center;}
+.step.active .step-label{color:var(--accent);}
+.step.done .step-label{color:var(--accent2);}
+.status-pending{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;text-align:center;}
+.sp-icon{font-size:56px;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.sp-title{font-size:18px;font-weight:700;margin-bottom:8px;}
+.sp-sub{font-size:14px;color:var(--text2);line-height:1.7;max-width:340px;}
+.profile-header{display:flex;align-items:center;gap:20px;padding:22px;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px;}
+.profile-avatar-big{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;flex-shrink:0;}
+.profile-info-name{font-size:20px;font-weight:800;}
+.profile-info-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.riwayat-item{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;}
+.riwayat-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.riwayat-in{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);}
+.riwayat-out{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);}
+.riwayat-info{flex:1;}
+.riwayat-plat{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;}
+.riwayat-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.riwayat-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);}
+.scan-line-anim{width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);animation:scanLine 1.5s ease-in-out infinite;margin:12px 0;}
+@keyframes scanLine{0%{transform:scaleX(.3);opacity:.5;}50%{transform:scaleX(1);opacity:1;}100%{transform:scaleX(.3);opacity:.5;}}
+.log-search-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.log-search-bar input{flex:1;min-width:160px;}
+.my-qr-wrap{max-width:380px;margin:0 auto;}
+@media print{.sidebar,.topbar,.no-print{display:none!important;}.qr-card{background:white!important;}}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="auth-logo-img">
+        <img src="logo-umsu.png" alt="UMSU" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'">
+        <div id="logo-fallback" style="display:none;width:80px;height:80px;background:linear-gradient(135deg,var(--accent),var(--accent4));border-radius:18px;align-items:center;justify-content:center;font-size:32px;">🅿</div>
+      </div>
+      <div class="auth-logo-name">SmartPark Campus</div>
+      <div class="auth-logo-uni">Universitas Muhammadiyah Sumatera Utara</div>
+      <div class="auth-logo-sub">Sistem Parkir Digital Kampus</div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Masuk</div>
+        <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Daftar</div>
+      </div>
+      <div id="form-login">
+        <div id="login-alert"></div>
+        <div class="form-group"><label class="form-label">Email / Username</label><input class="form-input" type="text" id="login-email" placeholder="contoh@email.com" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+        <div class="form-group">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label class="form-label" style="margin:0">Password</label>
+            <span onclick="openModal('modal-lupa-pass')" style="font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline">Lupa Password?</span>
+          </div>
+          <input class="form-input" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doLogin()">Masuk ke Sistem</button>
+        <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--text2)">
+          Belum punya akun? <span onclick="switchAuthTab('register')" style="color:var(--accent);cursor:pointer;font-weight:600;text-decoration:underline">Daftar sekarang</span>
+        </div>
+      </div>
+      <div id="form-register" style="display:none">
+        <div id="register-alert"></div>
+        <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input" type="text" id="reg-fullname" placeholder="Nama lengkap" /></div>
+        <div class="form-group"><label class="form-label">NIM / NIP</label><input class="form-input" type="text" id="reg-nim-auth" placeholder="210401001" /></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-input" id="reg-status-auth">
+            <option value="mahasiswa">Mahasiswa</option>
+            <option value="dosen">Dosen / Tenaga Pengajar</option>
+            <option value="staff">Staff / Karyawan</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="text" id="reg-email" placeholder="email@umsu.ac.id" /></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="reg-pass" placeholder="Min. 6 karakter" /></div>
+        <button class="btn btn-primary btn-full" onclick="doRegister()">Buat Akun</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app-screen">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <img src="logo-umsu.png" alt="UMSU" onerror="this.style.display='none'">
+      <div class="topbar-logo-text">SmartPark UMSU</div>
+    </div>
+    <div class="topbar-clock" id="clock">--:--:--</div>
+    <div class="topbar-date" id="topbar-date">--</div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-user">
+      <div class="topbar-avatar" id="user-avatar">?</div>
+      <div>
+        <div class="topbar-uname" id="user-name-display">-</div>
+        <div class="topbar-role" id="user-role-display">-</div>
+      </div>
+      <span class="role-badge" id="user-role-badge">-</span>
+    </div>
+    <button class="btn btn-outline btn-sm no-print" onclick="confirmLogout()" style="margin-left:10px">Keluar</button>
+  </div>
+  <div class="app-body">
+    <div class="sidebar">
+      <nav class="nav" id="sidebar-nav"></nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-stat"><span class="ss-label"><span class="dot dot-g"></span>Di Dalam</span><span class="ss-val" id="sb-inside">0</span></div>
+        <div class="sidebar-stat" style="margin-bottom:0"><span class="ss-label"><span class="dot dot-a"></span>Hari Ini</span><span class="ss-val" id="sb-today">0</span></div>
+      </div>
+    </div>
+    <div class="main" id="main-content">
+      <div id="toast"></div>
+
+      <!-- DASHBOARD -->
+      <div class="page" id="page-dashboard">
+        <div class="page-header"><div><div class="ph-title">Dashboard</div><div class="ph-sub">Ringkasan sistem parkir hari ini</div></div></div>
+        <div class="content">
+          <div class="g4 mb20">
+            <div class="metric"><div class="metric-label">Di Dalam</div><div class="metric-val" style="color:var(--accent2)" id="m-inside">0</div><div class="metric-sub">kendaraan saat ini</div></div>
+            <div class="metric"><div class="metric-label">Masuk Hari Ini</div><div class="metric-val" style="color:var(--accent)" id="m-in">0</div><div class="metric-sub">total masuk</div></div>
+            <div class="metric"><div class="metric-label">Keluar Hari Ini</div><div class="metric-val" style="color:var(--accent3)" id="m-out">0</div><div class="metric-sub">total keluar</div></div>
+            <div class="metric"><div class="metric-label">Menunggu Verifikasi</div><div class="metric-val" style="color:var(--danger)" id="m-pending">0</div><div class="metric-sub">perlu ditindak</div></div>
+          </div>
+          <div class="g2 mb20">
+            <div class="card">
+              <div class="card-title">Aktivitas Terkini</div>
+              <div class="timeline" id="recent-log"><div style="color:var(--text3);font-size:13px;padding:8px 0 0 40px">Belum ada aktivitas.</div></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Komposisi Kendaraan</div>
+              <div style="display:flex;gap:24px;margin-bottom:20px">
+                <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Motor</div><div style="font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent2)" id="d-motor">0</div></div>
+                <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Mobil</div><div style="font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent)" id="d-mobil">0</div></div>
+                <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Pengguna</div><div style="font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent4)" id="d-users">0</div></div>
+              </div>
+              <div class="card-title" style="margin-top:4px">Kendaraan Di Dalam</div>
+              <div class="scroll-wrap" style="max-height:200px;overflow-y:auto;">
+                <table><thead><tr><th>Plat</th><th>Nama</th><th>Jenis</th><th>Durasi</th></tr></thead>
+                <tbody id="inside-table"><tr><td colspan="4" style="color:var(--text3);text-align:center;padding:16px">Kosong</td></tr></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VERIFIKASI -->
+      <div class="page" id="page-verifikasi">
+        <div class="page-header"><div><div class="ph-title">Verifikasi Kendaraan</div><div class="ph-sub">Tinjau dan setujui/tolak pendaftaran</div></div></div>
+        <div class="content"><div id="verif-list"><div style="color:var(--text3);text-align:center;padding:48px;font-size:14px">Tidak ada pendaftaran yang menunggu verifikasi</div></div></div>
+      </div>
+
+      <!-- PORTAL MASUK -->
+      <div class="page" id="page-masuk">
+        <div class="page-header"><div><div class="ph-title">Portal Masuk</div><div class="ph-sub">Scan QR Code kendaraan yang akan masuk</div></div></div>
+        <div class="content">
+          <div class="g2">
+            <div>
+              <div class="card mb20">
+                <div class="card-title">Scan QR Code Masuk</div>
+                <div id="scan-in-alert"></div>
+                <div class="cam-wrap" id="cam-wrap-in" style="display:none"><div id="reader"></div></div>
+                <div class="cam-status" id="cam-status-in"></div>
+                <div class="cam-btn-row"><button class="btn btn-cam btn-sm btn-full" id="btn-cam-in" onclick="toggleCamera('in')">Buka Kamera Scanner</button></div>
+                <div class="scan-line-anim"></div>
+                <div style="display:flex;align-items:center;gap:10px;margin:10px 0"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:11px;color:var(--text3)">atau input manual</span><div style="flex:1;height:1px;background:var(--border)"></div></div>
+                <div class="scan-row"><input class="form-input" type="text" id="manual-in" placeholder="Masukkan QR ID..." onkeydown="if(event.key==='Enter')processEntry()" /><button class="btn btn-success" onclick="processEntry()">Proses</button></div>
+              </div>
+              <div class="card"><div class="card-title">Aktivitas Masuk Terkini</div><div id="log-masuk-list"><div style="color:var(--text3);font-size:13px">Belum ada aktivitas.</div></div></div>
+            </div>
+            <div><div class="card" id="result-masuk-card" style="display:none"><div class="card-title">Hasil Verifikasi</div><div id="result-masuk-content"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PORTAL KELUAR -->
+      <div class="page" id="page-keluar">
+        <div class="page-header"><div><div class="ph-title">Portal Keluar</div><div class="ph-sub">Validasi kendaraan yang akan keluar kampus</div></div></div>
+        <div class="content">
+          <div class="g2">
+            <div>
+              <div class="card mb20">
+                <div class="card-title">Scan QR Code Keluar</div>
+                <div id="scan-out-alert"></div>
+                <div class="cam-wrap" id="cam-wrap-out" style="display:none"><div id="reader-out"></div></div>
+                <div class="cam-status" id="cam-status-out"></div>
+                <div class="cam-btn-row"><button class="btn btn-cam btn-sm btn-full" id="btn-cam-out" onclick="toggleCamera('out')">Buka Kamera Scanner</button></div>
+                <div class="scan-line-anim"></div>
+                <div style="display:flex;align-items:center;gap:10px;margin:10px 0"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:11px;color:var(--text3)">atau input manual</span><div style="flex:1;height:1px;background:var(--border)"></div></div>
+                <div class="scan-row"><input class="form-input" type="text" id="manual-out" placeholder="Masukkan QR ID..." onkeydown="if(event.key==='Enter')processExit()" /><button class="btn btn-danger" onclick="processExit()">Proses Keluar</button></div>
+              </div>
+              <div class="card"><div class="card-title">Aktivitas Keluar Terkini</div><div id="log-keluar-list"><div style="color:var(--text3);font-size:13px">Belum ada aktivitas.</div></div></div>
+            </div>
+            <div><div class="card" id="result-keluar-card" style="display:none"><div class="card-title">Hasil Verifikasi Keluar</div><div id="result-keluar-content"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAFTAR KENDARAAN USER -->
+      <div class="page" id="page-daftar-kendaraan">
+        <div class="page-header"><div><div class="ph-title">Daftarkan Kendaraan</div><div class="ph-sub">Upload dokumen kendaraan untuk verifikasi admin</div></div></div>
+        <div class="content"><div id="daftar-content"></div></div>
+      </div>
+
+      <!-- QR SAYA -->
+      <div class="page" id="page-qr-saya">
+        <div class="page-header"><div><div class="ph-title">QR Code Saya</div><div class="ph-sub">QR Code digital kendaraan anda</div></div></div>
+        <div class="content"><div id="qr-saya-content"></div></div>
+      </div>
+
+      <!-- RIWAYAT PARKIR -->
+      <div class="page" id="page-riwayat">
+        <div class="page-header"><div><div class="ph-title">Riwayat Parkir</div><div class="ph-sub">Catatan masuk keluar kendaraan Anda</div></div></div>
+        <div class="content"><div id="riwayat-content"></div></div>
+      </div>
+
+      <!-- PROFIL -->
+      <div class="page" id="page-profil">
+        <div class="page-header"><div><div class="ph-title">Profil Saya</div><div class="ph-sub">Kelola data akun dan keamanan</div></div></div>
+        <div class="content"><div id="profil-content"></div></div>
+      </div>
+
+      <!-- DATA KENDARAAN ADMIN -->
+      <div class="page" id="page-kendaraan">
+        <div class="page-header"><div><div class="ph-title">Data Kendaraan</div><div class="ph-sub">Semua kendaraan terdaftar di sistem</div></div></div>
+        <div class="content">
+          <div class="card mb20">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+              <div class="card-title" style="margin-bottom:0">Semua Kendaraan</div>
+              <input class="form-input" type="text" id="search-kendaraan" placeholder="Cari plat / nama / ID..." style="width:240px" oninput="renderKendaraanTable()" />
+            </div>
+            <div class="tabs">
+              <div class="tab active" id="tab-semua" onclick="filterByType('semua')">Semua</div>
+              <div class="tab" id="tab-motor" onclick="filterByType('motor')">Motor</div>
+              <div class="tab" id="tab-mobil" onclick="filterByType('mobil')">Mobil</div>
+            </div>
+            <div class="scroll-wrap"><table><thead><tr><th>QR ID</th><th>Nama</th><th>NIM/NIP</th><th>Status</th><th>Jenis</th><th>Plat</th><th>Merk</th><th>Warna</th><th>Terdaftar</th><th>Aksi</th></tr></thead><tbody id="kendaraan-table"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOG AKTIVITAS -->
+      <div class="page" id="page-log">
+        <div class="page-header">
+          <div><div class="ph-title">Log Aktivitas</div><div class="ph-sub">Riwayat keluar masuk kendaraan</div></div>
+          <div style="padding-top:20px"><button class="btn btn-outline btn-sm no-print" onclick="exportLog()">Export CSV</button></div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <div class="log-search-bar">
+              <input class="form-input" type="text" id="log-search" placeholder="Cari nama / plat / QR ID..." oninput="renderLogTable()" style="max-width:260px">
+              <input class="form-input" type="date" id="log-date-filter" onchange="renderLogTable()" style="max-width:160px">
+              <button class="btn btn-outline btn-sm" onclick="clearLogFilter()">Reset</button>
+            </div>
+            <div class="tabs">
+              <div class="tab active" id="tab-log-all" onclick="filterLog('all')">Semua</div>
+              <div class="tab" id="tab-log-in" onclick="filterLog('in')">Masuk</div>
+              <div class="tab" id="tab-log-out" onclick="filterLog('out')">Keluar</div>
+            </div>
+            <div class="scroll-wrap"><table><thead><tr><th>Waktu</th><th>Aksi</th><th>QR ID</th><th>Nama</th><th>Plat</th><th>Jenis</th><th>Status</th><th>Durasi</th></tr></thead><tbody id="log-table"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANAJEMEN USER -->
+      <div class="page" id="page-users">
+        <div class="page-header"><div><div class="ph-title">Manajemen Pengguna</div><div class="ph-sub">Semua akun terdaftar di sistem</div></div></div>
+        <div class="content">
+          <div class="card">
+            <div class="scroll-wrap"><table><thead><tr><th>ID</th><th>Nama</th><th>NIM/NIP</th><th>Email</th><th>Status</th><th>Role</th><th>Kendaraan</th><th>Aksi</th></tr></thead><tbody id="users-table"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGOUT -->
+<div class="modal-overlay" id="modal-logout">
+  <div class="modal-box" style="max-width:380px;text-align:center">
+    <div style="font-size:48px;margin-bottom:12px">👋</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:8px">Yakin ingin keluar?</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:22px">Sesi Anda akan diakhiri. Data tersimpan otomatis.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-logout')" style="flex:1">Batal</button>
+      <button class="btn btn-danger btn-sm" onclick="doLogout()" style="flex:1">Ya, Keluar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal-box">
+    <div class="modal-title">Edit Kendaraan <button class="modal-close" onclick="closeModal('modal-edit')">x</button></div>
+    <input type="hidden" id="edit-qr-id" />
+    <div class="form-group"><label class="form-label">Nama Pemilik</label><input class="form-input" type="text" id="edit-nama" /></div>
+    <div class="form-group"><label class="form-label">NIM / NIP</label><input class="form-input" type="text" id="edit-nim" /></div>
+    <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="edit-status"><option value="mahasiswa">Mahasiswa</option><option value="dosen">Dosen</option><option value="staff">Staff</option></select></div>
+    <div class="form-group"><label class="form-label">Jenis</label><select class="form-input" id="edit-jenis"><option value="motor">Motor</option><option value="mobil">Mobil</option></select></div>
+    <div class="form-group"><label class="form-label">Plat</label><input class="form-input" type="text" id="edit-plat" oninput="this.value=this.value.toUpperCase()" /></div>
+    <div class="form-group"><label class="form-label">Merk / Model</label><input class="form-input" type="text" id="edit-merk" /></div>
+    <div class="form-group"><label class="form-label">Warna</label><input class="form-input" type="text" id="edit-warna" /></div>
+    <div id="edit-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-edit')" style="flex:1">Batal</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEdit()" style="flex:1">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOTO -->
+<div class="modal-overlay" id="modal-foto">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-title" id="modal-foto-title">Foto <button class="modal-close" onclick="closeModal('modal-foto')">x</button></div>
+    <div id="modal-foto-content"></div>
+  </div>
+</div>
+
+<!-- MODAL GANTI PASSWORD -->
+<div class="modal-overlay" id="modal-passwd">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-title">Ganti Password <button class="modal-close" onclick="closeModal('modal-passwd')">x</button></div>
+    <div class="form-group"><label class="form-label">Password Lama</label><input class="form-input" type="password" id="pw-old" placeholder="Password lama" /></div>
+    <div class="form-group"><label class="form-label">Password Baru</label><input class="form-input" type="password" id="pw-new" placeholder="Min. 6 karakter" /></div>
+    <div class="form-group"><label class="form-label">Konfirmasi Password Baru</label><input class="form-input" type="password" id="pw-confirm" placeholder="Ulangi password baru" /></div>
+    <div id="passwd-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-passwd')" style="flex:1">Batal</button>
+      <button class="btn btn-primary btn-sm" onclick="savePassword()" style="flex:1">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HAPUS KENDARAAN USER -->
+<div class="modal-overlay" id="modal-lupa-pass">
+  <div class="modal-box" style="max-width:420px">
+    <div style="font-size:28px;text-align:center;margin-bottom:10px">🔑</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:4px;text-align:center">Lupa Password</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:18px;text-align:center">Masukkan email/username dan password baru kamu</div>
+    <div id="lupa-pass-alert"></div>
+    <div class="form-group"><label class="form-label">Email / Username</label><input class="form-input" type="text" id="lupa-email" placeholder="contoh@email.com atau admin" /></div>
+    <div class="form-group"><label class="form-label">Password Baru</label><input class="form-input" type="password" id="lupa-newpass" placeholder="Min. 6 karakter" /></div>
+    <div class="form-group"><label class="form-label">Konfirmasi Password Baru</label><input class="form-input" type="password" id="lupa-confirmpass" placeholder="Ulangi password baru" /></div>
+    <div class="form-group"><label class="form-label">Kode Verifikasi Admin</label><input class="form-input" type="text" id="lupa-kode" placeholder="Minta kode ke admin" /></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px">Hubungi admin untuk mendapatkan kode verifikasi reset password.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-lupa-pass')" style="flex:1">Batal</button>
+      <button class="btn btn-primary btn-sm" onclick="doResetPassword()" style="flex:1">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-hapus-kend">
+  <div class="modal-box" style="max-width:380px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:8px">Hapus Kendaraan?</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:6px" id="hapus-kend-info"></div>
+    <div style="font-size:12px;color:var(--danger);margin-bottom:20px">Kendaraan yang sedang di dalam kampus tidak bisa dihapus.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-hapus-kend')" style="flex:1">Batal</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmHapusKendaraan()" style="flex:1">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== API CONFIG =====
+const API = 'http://localhost:3000/api';
+function getToken() { return localStorage.getItem('sp_token'); }
+function setToken(t) { localStorage.setItem('sp_token', t); }
+function clearToken() { localStorage.removeItem('sp_token'); }
+
+async function apiFetch(path, opts) {
+  opts = opts || {};
+  var headers = opts.headers || {};
+  var token = getToken();
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  if (!(opts.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+  try {
+    var res = await fetch(API + path, Object.assign({}, opts, { headers }));
+    var data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  } catch(e) {
+    return { ok: false, data: { message: 'Server tidak bisa dihubungi. Pastikan backend berjalan.' } };
+  }
+}
+
+// ===== STATE (in-memory, data dari API) =====
+var state = { currentUser: null, vehicles: [], pending: [], inside: [], logs: [], todayIn: 0, todayOut: 0 };
+
+var currentVehicleFilter = 'semua', currentLogFilter = 'all';
+var scannerIn = null, scannerOut = null, cameraInActive = false, cameraOutActive = false;
+var hapusKendaraanTarget = null;
+var uploadedFiles = { stnk: null, plat: null, kendaraan: null };
+var selectedQrVehicle = null;
+
+// ===== UTILS =====
+function nowDate() { return new Date(); }
+function fmt(d) { return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+function fmtDate(d) { return d.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }); }
+function fmtFull(d) { d = new Date(d); return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + fmt(d); }
+function fmtShortDate(d) { d = new Date(d); return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); }
+function duration(ms) {
+  var s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60);
+  if (h > 0) return h + 'j ' + (m % 60) + 'm';
+  if (m > 0) return m + 'm ' + (s % 60) + 'd';
+  return s + ' detik';
+}
+function toast(msg, type) {
+  type = type || 's';
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show t' + type;
+  clearTimeout(t._timer); t._timer = setTimeout(function() { t.className = ''; }, 3500);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+
+// ===== AUTH =====
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('form-login').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? '' : 'none';
+}
+
+async function doLogin() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var alertEl = document.getElementById('login-alert');
+  if (!email || !pass) { alertEl.innerHTML = '<div class="alert alert-d">Isi semua field!</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-i">Memproses...</div>';
+  var r = await apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password: pass }) });
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  setToken(r.data.token);
+  loginSuccess(r.data.user);
+}
+
+async function doRegister() {
+  var name = document.getElementById('reg-fullname').value.trim();
+  var nim = document.getElementById('reg-nim-auth').value.trim();
+  var status = document.getElementById('reg-status-auth').value;
+  var email = document.getElementById('reg-email').value.trim();
+  var pass = document.getElementById('reg-pass').value;
+  var alertEl = document.getElementById('register-alert');
+  if (!name || !nim || !email || !pass) { alertEl.innerHTML = '<div class="alert alert-d">Semua field wajib diisi!</div>'; return; }
+  if (pass.length < 6) { alertEl.innerHTML = '<div class="alert alert-d">Password min. 6 karakter!</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-i">Memproses...</div>';
+  var r = await apiFetch('/auth/register', { method: 'POST', body: JSON.stringify({ email, password: pass, name, nim, status }) });
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-s">Akun berhasil dibuat! Silakan login.</div>';
+  setTimeout(function() { switchAuthTab('login'); }, 1500);
+}
+
+function loginSuccess(user) {
+  state.currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').classList.add('show');
+  document.getElementById('user-name-display').textContent = user.name;
+  document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrator' : user.status;
+  document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+  var rb = document.getElementById('user-role-badge');
+  rb.textContent = user.role === 'admin' ? 'Admin' : 'User';
+  rb.className = 'role-badge ' + (user.role === 'admin' ? 'role-admin' : 'role-user');
+  buildSidebar();
+  if (user.role === 'admin') navigate('dashboard');
+  else navigate('daftar-kendaraan');
+  updateDashboard();
+}
+
+// ===== LUPA PASSWORD =====
+var RESET_CODE = 'SMARTPARK2024'; // Kode verifikasi admin — bisa diganti di sini
+
+async function doResetPassword() {
+  var email = document.getElementById('lupa-email').value.trim();
+  var newPass = document.getElementById('lupa-newpass').value;
+  var confirmPass = document.getElementById('lupa-confirmpass').value;
+  var kode = document.getElementById('lupa-kode').value.trim().toUpperCase();
+  var alertEl = document.getElementById('lupa-pass-alert');
+  if (!email || !newPass || !confirmPass || !kode) { alertEl.innerHTML = '<div class="alert alert-d">Semua field wajib diisi!</div>'; return; }
+  if (newPass.length < 6) { alertEl.innerHTML = '<div class="alert alert-d">Password baru minimal 6 karakter!</div>'; return; }
+  if (newPass !== confirmPass) { alertEl.innerHTML = '<div class="alert alert-d">Konfirmasi password tidak cocok!</div>'; return; }
+  if (kode !== RESET_CODE) { alertEl.innerHTML = '<div class="alert alert-d">Kode verifikasi salah! Hubungi admin.</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-i">Memproses...</div>';
+  var r = await apiFetch('/auth/reset-password', { method: 'POST', body: JSON.stringify({ email, newPassword: newPass }) });
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-s">Password berhasil direset! Silakan login.</div>';
+  setTimeout(function() {
+    closeModal('modal-lupa-pass');
+    document.getElementById('lupa-email').value = '';
+    document.getElementById('lupa-newpass').value = '';
+    document.getElementById('lupa-confirmpass').value = '';
+    document.getElementById('lupa-kode').value = '';
+    document.getElementById('lupa-pass-alert').innerHTML = '';
+  }, 1800);
+}
+
+function confirmLogout() { openModal('modal-logout'); }
+
+function doLogout() {
+  clearToken();
+  state.currentUser = null;
+  closeModal('modal-logout');
+  document.getElementById('app-screen').classList.remove('show');
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('login-alert').innerHTML = '';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+  if (cameraInActive) stopCamera('in');
+  if (cameraOutActive) stopCamera('out');
+}
+
+// ===== SIDEBAR =====
+var adminNav = [
+  { id: 'dashboard', icon: 'grid', label: 'Dashboard' },
+  { id: 'verifikasi', icon: 'check', label: 'Verifikasi', badge: true },
+  { section: 'Operasional' },
+  { id: 'masuk', icon: 'login', label: 'Portal Masuk' },
+  { id: 'keluar', icon: 'logout', label: 'Portal Keluar' },
+  { section: 'Data' },
+  { id: 'kendaraan', icon: 'car', label: 'Data Kendaraan' },
+  { id: 'log', icon: 'file', label: 'Log Aktivitas' },
+  { id: 'users', icon: 'people', label: 'Pengguna' },
+  { section: 'Akun' },
+  { id: 'profil', icon: 'user', label: 'Profil Saya' }
+];
+var userNav = [
+  { id: 'daftar-kendaraan', icon: 'plus', label: 'Daftarkan Kendaraan' },
+  { id: 'qr-saya', icon: 'qr', label: 'QR Code Saya' },
+  { id: 'riwayat', icon: 'history', label: 'Riwayat Parkir' },
+  { section: 'Akun' },
+  { id: 'profil', icon: 'user', label: 'Profil Saya' }
+];
+
+var icons = {
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  check: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  login: '<path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/>',
+  logout: '<path d="M9 21H3v-6M10 14l-7 7M15 3h6v6M14 10l7-7"/>',
+  car: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  qr: '<rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><path d="M21 16h-3v3h3"/><path d="M14 3h2v2h-2zM14 8h2v2h-2zM14 13h7v2h-7z"/>',
+  history: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.77"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  people: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'
+};
+
+var ADMIN_PAGES = ['dashboard', 'verifikasi', 'masuk', 'keluar', 'kendaraan', 'log', 'users'];
+var USER_PAGES = ['daftar-kendaraan', 'qr-saya', 'riwayat'];
+
+function buildSidebar() {
+  var nav = state.currentUser.role === 'admin' ? adminNav : userNav;
+  var c = document.getElementById('sidebar-nav');
+  c.innerHTML = '';
+  nav.forEach(function(item) {
+    if (item.section) {
+      c.innerHTML += '<div class="nav-section">' + item.section + '</div>';
+    } else {
+      var badge = item.badge ? '<span class="nav-badge" id="nav-badge-verifikasi">0</span>' : '';
+      c.innerHTML += '<div class="nav-item" id="nav-' + item.id + '" onclick="navigate(\'' + item.id + '\')">' +
+        '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icons[item.icon] + '</svg>' +
+        item.label + badge + '</div>';
+    }
+  });
+}
+
+// ===== NAVIGATE =====
+function navigate(page) {
+  var role = state.currentUser && state.currentUser.role;
+  if (role === 'user' && ADMIN_PAGES.indexOf(page) !== -1) { toast('Akses ditolak!', 'e'); return; }
+  if (role === 'admin' && USER_PAGES.indexOf(page) !== -1) { toast('Halaman khusus pengguna.', 'e'); return; }
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var pageEl = document.getElementById('page-' + page);
+  if (!pageEl) return;
+  pageEl.classList.add('active');
+  var navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  if (page === 'kendaraan') renderKendaraanTable();
+  if (page === 'log') renderLogTable();
+  if (page === 'dashboard') updateDashboard();
+  if (page === 'verifikasi') renderVerifikasi();
+  if (page === 'daftar-kendaraan') renderDaftarPage();
+  if (page === 'qr-saya') renderQrSaya();
+  if (page === 'riwayat') renderRiwayat();
+  if (page === 'profil') renderProfil();
+  if (page === 'users') renderUsersTable();
+}
+
+// ===== CLOCK =====
+function updateClock() {
+  var n = new Date();
+  document.getElementById('clock').textContent = fmt(n);
+  document.getElementById('topbar-date').textContent = fmtShortDate(n);
+  checkDayReset(state);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== DASHBOARD =====
+async function updateDashboard() {
+  if (!state.currentUser || state.currentUser.role !== 'admin') return;
+  var r = await apiFetch('/parking/dashboard');
+  if (!r.ok) return;
+  var d = r.data.data;
+  var elMap = { 'm-inside': d.inside, 'm-in': d.todayIn, 'm-out': d.todayOut, 'm-pending': d.pending };
+  Object.keys(elMap).forEach(function(k) { var el = document.getElementById(k); if (el) el.textContent = elMap[k]; });
+  var sbI = document.getElementById('sb-inside'); if (sbI) sbI.textContent = d.inside;
+  var sbT = document.getElementById('sb-today'); if (sbT) sbT.textContent = d.todayIn;
+  var dm = document.getElementById('d-motor'); if (dm) dm.textContent = d.motor;
+  var dmob = document.getElementById('d-mobil'); if (dmob) dmob.textContent = d.mobil;
+  var du = document.getElementById('d-users'); if (du) du.textContent = d.users;
+  var nb = document.getElementById('nav-badge-verifikasi'); if (nb) nb.textContent = d.pending;
+
+  // Kendaraan di dalam
+  var ri = await apiFetch('/parking/inside');
+  var tbody = document.getElementById('inside-table');
+  if (tbody && ri.ok) {
+    var inside = ri.data.data;
+    if (inside.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:16px">Kosong</td></tr>'; }
+    else { tbody.innerHTML = inside.map(function(v) {
+      var dur = duration(new Date() - new Date(v.entry_time));
+      return '<tr><td style="font-family:monospace;font-weight:700">' + v.plat + '</td><td>' + v.nama + '</td><td>' + (v.jenis === 'motor' ? '🏍' : '🚗') + '</td><td style="color:var(--accent2);font-size:11px">' + dur + '</td></tr>';
+    }).join(''); }
+  }
+
+  // Aktivitas terkini
+  var recentEl = document.getElementById('recent-log');
+  if (recentEl && d.recentLogs) {
+    if (d.recentLogs.length === 0) { recentEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0 0 40px">Belum ada aktivitas.</div>'; }
+    else { recentEl.innerHTML = d.recentLogs.slice(0, 6).map(function(l) {
+      return '<div class="tl-item"><div class="tl-dot ' + (l.type === 'in' ? 'tl-g' : 'tl-a') + '">' + (l.type === 'in' ? '↓' : '↑') + '</div><div class="tl-body"><div class="tl-title">' + l.nama + ' — ' + l.plat + '</div><div class="tl-desc">' + (l.type === 'in' ? 'Masuk parkiran' : 'Keluar (' + (l.duration || '-') + ')') + '</div><div class="tl-time">' + fmtFull(l.time) + '</div></div></div>';
+    }).join(''); }
+  }
+}
+
+// ===== VERIFIKASI =====
+async function renderVerifikasi() {
+  var el = document.getElementById('verif-list');
+  el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:24px">Memuat...</div>';
+  var r = await apiFetch('/vehicles/pending');
+  if (!r.ok) { el.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  var list = r.data.data;
+  if (list.length === 0) { el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:48px;font-size:14px">Tidak ada pendaftaran yang menunggu verifikasi</div>'; return; }
+  el.innerHTML = list.map(function(p) {
+    var imgBase = ''; // Cloudinary URLs sudah lengkap
+    return '<div class="pending-card">' +
+      '<div class="pc-top"><div><div class="pc-name">' + p.nama + '</div>' +
+      '<div class="pc-meta">' + p.nim + ' &middot; <span class="badge bb">' + p.status + '</span> &middot; ' + (p.jenis === 'motor' ? '🏍 Motor' : '🚗 Mobil') + ' &middot; <strong>' + p.plat + '</strong> &middot; ' + p.merk + ' &middot; ' + p.warna + '</div>' +
+      '<div class="pc-meta" style="font-size:11px;color:var(--text3)">Dikirim: ' + fmtFull(p.submitted_at) + '</div></div>' +
+      '<span class="badge ba">Menunggu</span></div>' +
+      '<div class="pc-imgs">' +
+        '<div><div class="pc-img-wrap">' + (p.img_stnk ? '<img src="' + imgBase + p.img_stnk + '" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="showFotoUrl(\'STNK\',\'' + imgBase + p.img_stnk + '\')">' : '<div class="pc-img-placeholder">📄</div>') + '</div><div class="pc-img-label">STNK</div></div>' +
+        '<div><div class="pc-img-wrap">' + (p.img_plat ? '<img src="' + imgBase + p.img_plat + '" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="showFotoUrl(\'KTM\',\'' + imgBase + p.img_plat + '\')">' : '<div class="pc-img-placeholder">🔖</div>') + '</div><div class="pc-img-label">KTM</div></div>' +
+        '<div><div class="pc-img-wrap">' + (p.img_kendaraan ? '<img src="' + imgBase + p.img_kendaraan + '" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="showFotoUrl(\'Foto Kendaraan\',\'' + imgBase + p.img_kendaraan + '\')">' : '<div class="pc-img-placeholder">🚗</div>') + '</div><div class="pc-img-label">Foto Kendaraan</div></div>' +
+      '</div>' +
+      '<div class="pc-actions">' +
+        '<button class="btn btn-success btn-sm" onclick="approveVehicle(\'' + p.id + '\')">Setujui & Buat QR</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="rejectVehicle(\'' + p.id + '\')">Tolak</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function showFotoUrl(label, url) {
+  document.getElementById('modal-foto-title').innerHTML = label + ' <button class="modal-close" onclick="closeModal(\'modal-foto\')">x</button>';
+  document.getElementById('modal-foto-content').innerHTML = '<img src="' + url + '" style="width:100%;border-radius:var(--rs)">';
+  openModal('modal-foto');
+}
+
+function showFoto(label, pendingId) { /* legacy compat */ }
+function showDetailPending(id) { /* legacy compat */ }
+
+async function approveVehicle(pendingId) {
+  var r = await apiFetch('/vehicles/pending/' + pendingId + '/approve', { method: 'PUT' });
+  if (!r.ok) { toast(r.data.message, 'e'); return; }
+  toast('Kendaraan disetujui! QR: ' + r.data.qrId, 's');
+  renderVerifikasi(); updateDashboard();
+}
+
+async function rejectVehicle(pendingId) {
+  if (!confirm('Tolak pendaftaran ini?')) return;
+  var r = await apiFetch('/vehicles/pending/' + pendingId + '/reject', { method: 'PUT' });
+  if (!r.ok) { toast(r.data.message, 'e'); return; }
+  toast('Pendaftaran ditolak.', 'e');
+  renderVerifikasi(); updateDashboard();
+}
+
+// ===== DAFTAR KENDARAAN USER =====
+async function renderDaftarPage() {
+  var user = state.currentUser;
+  var el = document.getElementById('daftar-content');
+  el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:24px">Memuat...</div>';
+
+  var [rv, rp] = await Promise.all([apiFetch('/vehicles/mine'), apiFetch('/vehicles/my-pending')]);
+  var myVehicles = rv.ok ? rv.data.data : [];
+  var myPending = rp.ok ? rp.data.data : [];
+
+  var LIMIT = { mahasiswa: 2, dosen: 3, staff: 2 };
+  var maxAllowed = LIMIT[user.status] || 2;
+  var waitingList = myPending.filter(function(p) { return p.verif === 'pending'; });
+  var canRegister = (myVehicles.length + waitingList.length) < maxAllowed;
+
+  var approvedHtml = myVehicles.length > 0 ? '<div class="card mb20"><div class="card-title">Kendaraan Terdaftar Saya (' + myVehicles.length + '/' + maxAllowed + ')</div>' +
+    myVehicles.map(function(v) {
+      return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+        '<div><div style="font-weight:700;font-size:14px">' + (v.jenis === 'motor' ? '🏍' : '🚗') + ' ' + v.plat + '</div>' +
+        '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + v.merk + ' &middot; ' + v.warna + ' &middot; <span class="badge bb" style="font-size:10px">' + v.qr_id + '</span></div></div>' +
+        '<div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="navigate(\'qr-saya\')">QR</button>' +
+        '<button class="btn btn-danger btn-xs" onclick="askHapusKendaraan(\'' + v.qr_id + '\')">Hapus</button></div></div>';
+    }).join('') + '</div>' : '';
+
+  var waitingHtml = waitingList.map(function(w) { return '<div class="alert alert-w">Menunggu verifikasi: <strong>' + w.plat + '</strong> &mdash; ' + w.merk + ' &middot; Dikirim ' + fmtFull(w.submitted_at) + '</div>'; }).join('');
+  var rejectedHtml = myPending.filter(function(p) { return p.verif === 'rejected'; }).map(function(r) { return '<div class="alert alert-d">Ditolak: <strong>' + r.plat + '</strong> &mdash; silakan daftar ulang dengan data yang benar.</div>'; }).join('');
+
+  var formHtml = canRegister ? '<div class="g2">' +
+    '<div class="card">' +
+    '<div class="card-title">Form Pendaftaran Kendaraan Baru</div>' +
+    '<div id="daftar-alert"></div>' +
+    '<div class="steps"><div class="step active"><div class="step-num">1</div><div class="step-label">Data Diri</div></div><div class="step"><div class="step-num">2</div><div class="step-label">Kendaraan</div></div><div class="step"><div class="step-num">3</div><div class="step-label">Upload</div></div></div>' +
+    '<div class="form-group"><label class="form-label">Nama Pemilik</label><input class="form-input" type="text" id="d-nama" value="' + user.name + '" /></div>' +
+    '<div class="form-group"><label class="form-label">NIM / NIP</label><input class="form-input" type="text" id="d-nim" value="' + user.nim + '" /></div>' +
+    '<div class="form-group"><label class="form-label">Status</label><select class="form-input" id="d-status"><option value="mahasiswa"' + (user.status === 'mahasiswa' ? ' selected' : '') + '>Mahasiswa</option><option value="dosen"' + (user.status === 'dosen' ? ' selected' : '') + '>Dosen</option><option value="staff"' + (user.status === 'staff' ? ' selected' : '') + '>Staff</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Jenis Kendaraan</label><select class="form-input" id="d-jenis"><option value="motor">Motor</option><option value="mobil">Mobil</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Nomor Plat</label><input class="form-input" type="text" id="d-plat" placeholder="BK 1234 AB" oninput="this.value=this.value.toUpperCase()" /></div>' +
+    '<div class="form-group"><label class="form-label">Merk / Model</label><input class="form-input" type="text" id="d-merk" placeholder="Honda Beat, Toyota Avanza..." /></div>' +
+    '<div class="form-group"><label class="form-label">Warna</label><input class="form-input" type="text" id="d-warna" placeholder="Hitam, Putih..." /></div>' +
+    '<div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin:16px 0 10px">Upload Dokumen</div>' +
+    '<div class="form-group"><label class="form-label">Foto STNK</label><div class="upload-zone" id="zone-stnk" onclick="document.getElementById(\'file-stnk\').click()"><div class="upload-icon">📄</div><div class="upload-label">Klik untuk upload STNK</div><div class="upload-hint">JPG, PNG</div></div><input type="file" id="file-stnk" accept="image/*" style="display:none" onchange="handleFile(this,\'zone-stnk\',\'prev-stnk\',\'stnk\')" /><img id="prev-stnk" class="upload-preview" style="display:none" /></div>' +
+    '<div class="form-group"><label class="form-label">Foto Kartu Tanda Mahasiswa / KTM</label><div class="upload-zone" id="zone-plat" onclick="document.getElementById(\'file-plat\').click()"><div class="upload-icon">🪪</div><div class="upload-label">Klik untuk upload foto KTM</div><div class="upload-hint">JPG, PNG (tampak depan)</div></div><input type="file" id="file-plat" accept="image/*" style="display:none" onchange="handleFile(this,\'zone-plat\',\'prev-plat\',\'plat\')" /><img id="prev-plat" class="upload-preview" style="display:none" /></div>' +
+    '<div class="form-group"><label class="form-label">Foto Kendaraan</label><div class="upload-zone" id="zone-kendaraan" onclick="document.getElementById(\'file-kendaraan\').click()"><div class="upload-icon">🚗</div><div class="upload-label">Klik untuk upload foto kendaraan</div><div class="upload-hint">Tampak depan/samping</div></div><input type="file" id="file-kendaraan" accept="image/*" style="display:none" onchange="handleFile(this,\'zone-kendaraan\',\'prev-kendaraan\',\'kendaraan\')" /><img id="prev-kendaraan" class="upload-preview" style="display:none" /></div>' +
+    '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="submitDaftar()">Kirim untuk Verifikasi</button></div>' +
+    '<div><div class="card"><div class="card-title">Alur Pendaftaran</div><div class="timeline">' +
+    '<div class="tl-item"><div class="tl-dot tl-b">1</div><div class="tl-body"><div class="tl-title">Isi form dan upload dokumen</div><div class="tl-desc">STNK, foto KTM, dan foto kendaraan</div></div></div>' +
+    '<div class="tl-item"><div class="tl-dot tl-a">2</div><div class="tl-body"><div class="tl-title">Verifikasi Admin</div><div class="tl-desc">Admin meninjau data dalam 1x24 jam</div></div></div>' +
+    '<div class="tl-item"><div class="tl-dot tl-g">3</div><div class="tl-body"><div class="tl-title">QR Code Diterbitkan</div><div class="tl-desc">QR Code aktif di menu QR Code Saya</div></div></div>' +
+    '<div class="tl-item"><div class="tl-dot tl-b">4</div><div class="tl-body"><div class="tl-title">Scan saat masuk dan keluar</div><div class="tl-desc">Tunjukkan QR Code ke petugas/scanner</div></div></div>' +
+    '</div></div></div></div>' : '<div class="alert alert-w">Anda sudah mencapai batas maksimal <strong>' + maxAllowed + ' kendaraan</strong> untuk status <strong>' + user.status + '</strong>.</div>';
+
+  el.innerHTML = approvedHtml + waitingHtml + rejectedHtml + formHtml;
+}
+
+function askHapusKendaraan(qrId) {
+  hapusKendaraanTarget = qrId;
+  document.getElementById('hapus-kend-info').textContent = qrId;
+  openModal('modal-hapus-kend');
+}
+
+async function confirmHapusKendaraan() {
+  if (!hapusKendaraanTarget) return;
+  var r = await apiFetch('/vehicles/' + hapusKendaraanTarget, { method: 'DELETE' });
+  hapusKendaraanTarget = null;
+  closeModal('modal-hapus-kend');
+  if (!r.ok) { toast(r.data.message, 'e'); return; }
+  toast('Kendaraan berhasil dihapus.', 'i');
+  renderDaftarPage(); updateDashboard();
+}
+
+function handleFile(input, zoneId, prevId, key) {
+  var file = input.files[0]; if (!file) return;
+  uploadedFiles[key] = file;
+  document.getElementById(zoneId).classList.add('has-file');
+  document.getElementById(zoneId).querySelector('.upload-label').textContent = file.name;
+  var prev = document.getElementById(prevId);
+  prev.src = URL.createObjectURL(file); prev.style.display = 'block';
+}
+
+async function submitDaftar() {
+  var nama = document.getElementById('d-nama').value.trim();
+  var nim = document.getElementById('d-nim').value.trim();
+  var status = document.getElementById('d-status').value;
+  var jenis = document.getElementById('d-jenis').value;
+  var plat = document.getElementById('d-plat').value.trim().toUpperCase();
+  var merk = document.getElementById('d-merk').value.trim();
+  var warna = document.getElementById('d-warna').value.trim();
+  var alertEl = document.getElementById('daftar-alert');
+  if (!nama || !nim || !plat || !merk || !warna) { alertEl.innerHTML = '<div class="alert alert-d">Semua field harus diisi!</div>'; return; }
+  if (!uploadedFiles.stnk || !uploadedFiles.plat || !uploadedFiles.kendaraan) { alertEl.innerHTML = '<div class="alert alert-w">Upload foto STNK, plat nomor, dan foto kendaraan!</div>'; return; }
+
+  var fd = new FormData();
+  fd.append('nama', nama); fd.append('nim', nim); fd.append('status', status);
+  fd.append('jenis', jenis); fd.append('plat', plat); fd.append('merk', merk); fd.append('warna', warna);
+  fd.append('stnk', uploadedFiles.stnk);
+  fd.append('plat', uploadedFiles.plat);
+  fd.append('kendaraan', uploadedFiles.kendaraan);
+
+  // Rebuild FormData with correct field names
+  var fd2 = new FormData();
+  fd2.append('nama', nama); fd2.append('nim', nim); fd2.append('status', status);
+  fd2.append('jenis', jenis); fd2.append('plat', plat); fd2.append('merk', merk); fd2.append('warna', warna);
+  fd2.append('stnk', uploadedFiles.stnk);
+  fd2.append('plat', uploadedFiles.plat);
+  fd2.append('kendaraan', uploadedFiles.kendaraan);
+
+  alertEl.innerHTML = '<div class="alert alert-i">Mengirim data...</div>';
+  var headers = {};
+  var token = getToken();
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  try {
+    var res = await fetch(API + '/vehicles/pending', { method: 'POST', headers, body: fd2 });
+    var data = await res.json();
+    if (!res.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + data.message + '</div>'; return; }
+    uploadedFiles = { stnk: null, plat: null, kendaraan: null };
+    toast('Pendaftaran berhasil dikirim! Tunggu verifikasi admin.', 'i');
+    renderDaftarPage(); updateDashboard();
+  } catch(e) { alertEl.innerHTML = '<div class="alert alert-d">Server tidak bisa dihubungi.</div>'; }
+}
+
+// ===== QR SAYA =====
+async function renderQrSaya() {
+  var user = state.currentUser;
+  var el = document.getElementById('qr-saya-content');
+  el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:24px">Memuat...</div>';
+  var r = await apiFetch('/vehicles/mine');
+  var myVehicles = r.ok ? r.data.data : [];
+
+  if (myVehicles.length === 0) {
+    var rp = await apiFetch('/vehicles/my-pending');
+    var waiting = rp.ok && rp.data.data.find(function(p) { return p.verif === 'pending'; });
+    el.innerHTML = '<div class="status-pending"><div class="sp-icon">' + (waiting ? '⏳' : '📋') + '</div><div class="sp-title">' + (waiting ? 'Menunggu Verifikasi' : 'Belum Ada Kendaraan Terdaftar') + '</div><div class="sp-sub">' + (waiting ? 'QR Code akan diterbitkan setelah admin memverifikasi data kendaraan Anda.' : 'Daftarkan kendaraan terlebih dahulu.') + '</div>' + (!waiting ? '<button class="btn btn-primary" style="margin-top:20px" onclick="navigate(\'daftar-kendaraan\')">Daftarkan Kendaraan</button>' : '') + '</div>';
+    return;
+  }
+  if (!selectedQrVehicle || !myVehicles.find(function(v) { return v.qr_id === selectedQrVehicle; })) {
+    selectedQrVehicle = myVehicles[0].qr_id;
+  }
+  var v = myVehicles.find(function(x) { return x.qr_id === selectedQrVehicle; });
+  var selectorHtml = myVehicles.length > 1 ? '<div class="qr-vehicle-selector">' + myVehicles.map(function(mv) {
+    return '<div class="qr-veh-btn ' + (mv.qr_id === selectedQrVehicle ? 'active' : '') + '" onclick="selectQrVehicle(\'' + mv.qr_id + '\')">' +
+      '<div class="vb-plat">' + (mv.jenis === 'motor' ? '🏍' : '🚗') + ' ' + mv.plat + '</div><div class="vb-merk">' + mv.merk + '</div></div>';
+  }).join('') + '</div>' : '';
+  el.innerHTML = '<div class="my-qr-wrap">' + selectorHtml +
+    '<div class="alert alert-i" style="margin-bottom:14px">QR Code aktif</div>' +
+    '<div class="card" id="qr-print-area"><div class="qr-card">' +
+    '<div class="qr-header-text">SmartPark Campus UMSU — Kartu Parkir Digital</div>' +
+    '<div style="display:flex;justify-content:center" id="my-qr-container"></div>' +
+    '<div class="qr-id-text">' + v.qr_id + '</div>' +
+    '<div class="qr-name-text">' + v.nama + ' &middot; ' + v.nim + '</div>' +
+    '<div class="qr-plat-text">' + (v.jenis === 'motor' ? '🏍' : '🚗') + ' ' + v.plat + ' &middot; ' + v.merk + ' &middot; ' + v.warna + '</div>' +
+    '<div class="qr-footer"><div class="qr-footer-title">SMARTPARK CAMPUS UMSU</div><div class="qr-footer-name">' + v.status + '</div></div></div></div>' +
+    '<div style="display:flex;gap:10px;margin-top:14px">' +
+    '<button class="btn btn-outline btn-sm" style="flex:1" onclick="window.print()">🖨 Print</button>' +
+    '</div></div>';
+  setTimeout(function() {
+    var c = document.getElementById('my-qr-container');
+    if (c) { c.innerHTML = ''; new QRCode(c, { text: v.qr_id, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' }); }
+  }, 100);
+}
+
+function copyId(id) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(id).then(function() { toast('QR ID disalin: ' + id, 'i'); }); }
+  else { var t = document.createElement('textarea'); t.value = id; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); toast('QR ID disalin: ' + id, 'i'); }
+}
+
+// ===== RIWAYAT =====
+async function renderRiwayat() {
+  var el = document.getElementById('riwayat-content');
+  el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:24px">Memuat...</div>';
+  var r = await apiFetch('/logs/my');
+  if (!r.ok) { el.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  var myLogs = r.data.data;
+  if (myLogs.length === 0) {
+    el.innerHTML = '<div class="status-pending"><div class="sp-icon">📭</div><div class="sp-title">Belum Ada Riwayat</div><div class="sp-sub">Riwayat masuk dan keluar parkiran Anda akan muncul di sini.</div></div>';
+    return;
+  }
+  el.innerHTML = '<div class="card"><div class="card-title">Riwayat Parkir Saya (' + myLogs.length + ' catatan)</div>' +
+    myLogs.map(function(l) {
+      return '<div class="riwayat-item"><div class="riwayat-icon ' + (l.type === 'in' ? 'riwayat-in' : 'riwayat-out') + '">' + (l.type === 'in' ? '↓' : '↑') + '</div>' +
+        '<div class="riwayat-info"><div class="riwayat-plat">' + l.plat + '</div>' +
+        '<div class="riwayat-meta">' + (l.type === 'in' ? '<span style="color:var(--accent2)">Masuk Parkiran</span>' : '<span style="color:var(--accent3)">Keluar Parkiran</span>') + (l.duration ? ' &middot; Durasi: ' + l.duration : '') + '</div></div>' +
+        '<div class="riwayat-time">' + fmtFull(l.time) + '</div></div>';
+    }).join('') + '</div>';
+}
+
+// ===== PROFIL =====
+function renderProfil() {
+  var user = state.currentUser;
+  var el = document.getElementById('profil-content');
+  el.innerHTML = '<div class="profile-header"><div class="profile-avatar-big">' + user.name.charAt(0).toUpperCase() + '</div>' +
+    '<div><div class="profile-info-name">' + user.name + '</div>' +
+    '<div class="profile-info-sub">' + user.nim + ' &middot; <span class="badge ' + (user.role === 'admin' ? 'bp' : 'bb') + '">' + (user.role === 'admin' ? 'Admin' : user.status) + '</span></div>' +
+    '<div class="profile-info-sub" style="margin-top:4px">' + user.email + '</div></div></div>' +
+    '<div class="g2 mb20"><div class="card"><div class="card-title">Data Akun</div>' +
+    [['Nama Lengkap', user.name], ['NIM / NIP', user.nim], ['Email / Username', user.email], ['Status', user.status], ['Role', user.role]].map(function(r) {
+      return '<div class="result-row"><span class="r-key">' + r[0] + '</span><span class="r-val">' + r[1] + '</span></div>';
+    }).join('') +
+    '<button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%" onclick="openModal(\'modal-passwd\')">Ganti Password</button></div>' +
+    '<div class="card"><div class="card-title">Info Akun</div>' +
+    '<div style="color:var(--text2);font-size:13px;line-height:2">Role: <strong>' + user.role + '</strong><br>Status: <strong>' + user.status + '</strong></div>' +
+    '</div></div>';
+}
+
+async function savePassword() {
+  var oldPw = document.getElementById('pw-old').value;
+  var newPw = document.getElementById('pw-new').value;
+  var confirmPw = document.getElementById('pw-confirm').value;
+  var alertEl = document.getElementById('passwd-alert');
+  if (!oldPw || !newPw || !confirmPw) { alertEl.innerHTML = '<div class="alert alert-d">Semua field harus diisi!</div>'; return; }
+  if (newPw.length < 6) { alertEl.innerHTML = '<div class="alert alert-d">Password baru min. 6 karakter!</div>'; return; }
+  if (newPw !== confirmPw) { alertEl.innerHTML = '<div class="alert alert-d">Konfirmasi password tidak cocok!</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-i">Menyimpan...</div>';
+  var r = await apiFetch('/auth/change-password', { method: 'PUT', body: JSON.stringify({ oldPassword: oldPw, newPassword: newPw }) });
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  closeModal('modal-passwd');
+  document.getElementById('pw-old').value = ''; document.getElementById('pw-new').value = ''; document.getElementById('pw-confirm').value = ''; document.getElementById('passwd-alert').innerHTML = '';
+  toast('Password berhasil diubah!', 's');
+}
+
+// ===== PORTAL MASUK =====
+async function processEntry(qrIdOverride) {
+  var qrId = qrIdOverride || document.getElementById('manual-in').value.trim().toUpperCase();
+  var alertEl = document.getElementById('scan-in-alert');
+  var resultCard = document.getElementById('result-masuk-card');
+  var resultContent = document.getElementById('result-masuk-content');
+  if (!qrId) { alertEl.innerHTML = '<div class="alert alert-d">Masukkan QR ID!</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-i">Memproses...</div>';
+  var r = await apiFetch('/parking/masuk', { method: 'POST', body: JSON.stringify({ qrId }) });
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; resultCard.style.display = 'none'; return; }
+  alertEl.innerHTML = '';
+  var v = r.data.vehicle;
+  var now = new Date();
+  resultCard.style.display = 'block';
+  var rows = [['QR ID', v.qrId], ['Nama', v.nama], ['Plat', v.plat], ['Jenis', v.jenis === 'motor' ? '🏍 Motor' : '🚗 Mobil'], ['Merk', v.merk], ['Waktu', fmtFull(now)]];
+  resultContent.innerHTML = '<div class="alert alert-s">Kendaraan diizinkan masuk!</div><div class="result-box">' + rows.map(function(r) { return '<div class="result-row"><span class="r-key">' + r[0] + '</span><span class="r-val">' + r[1] + '</span></div>'; }).join('') + '</div>';
+  document.getElementById('manual-in').value = '';
+  var logEl = document.getElementById('log-masuk-list');
+  logEl.innerHTML = '<div class="tl-item"><div class="tl-dot tl-g">↓</div><div class="tl-body"><div class="tl-title">' + v.nama + ' — ' + v.plat + '</div><div class="tl-time">' + fmtFull(now) + '</div></div></div>' + logEl.innerHTML;
+  updateDashboard();
+  toast(v.plat + ' masuk parkiran', 's');
+}
+
+// ===== PORTAL KELUAR =====
+var _pendingExitQrId = null;
+
+// TAHAP 1: Cek kendaraan, tampil foto untuk validasi visual
+async function processExit(qrIdOverride) {
+  var qrId = qrIdOverride || document.getElementById('manual-out').value.trim().toUpperCase();
+  var alertEl = document.getElementById('scan-out-alert');
+  if (!qrId) { alertEl.innerHTML = '<div class="alert alert-d">Masukkan QR ID!</div>'; return; }
+  alertEl.innerHTML = '<div class="alert alert-i">Memeriksa kendaraan...</div>';
+
+  // Ambil data kendaraan dari inside list
+  var r = await apiFetch('/parking/inside');
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">Gagal mengambil data.</div>'; return; }
+  var insideList = r.data.data;
+  var insideVeh = insideList.find(function(v) { return v.qr_id === qrId; });
+  if (!insideVeh) { alertEl.innerHTML = '<div class="alert alert-d">Kendaraan tidak ditemukan di dalam parkir!</div>'; return; }
+
+  // Ambil detail foto dari vehicles
+  var rv = await apiFetch('/vehicles');
+  var vehicles = rv.ok ? rv.data.data : [];
+  var vehDetail = vehicles.find(function(v) { return v.qr_id === qrId; });
+
+  alertEl.innerHTML = '';
+  _pendingExitQrId = qrId;
+
+  // Hitung durasi sementara
+  var entryTime = new Date(insideVeh.entry_time);
+  var durMs = new Date() - entryTime;
+  var durStr = duration(durMs);
+
+  // Tampilkan modal validasi dengan foto
+  var imgHtml = '';
+  if (vehDetail && vehDetail.img_kendaraan) {
+    imgHtml = '<div style="margin:14px 0"><div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Foto Kendaraan Terdaftar</div>' +
+      '<img src="' + vehDetail.img_kendaraan + '" style="width:100%;border-radius:var(--rs);object-fit:cover;max-height:220px" />' +
+      '</div>';
+  }
+  var stnkHtml = '';
+  if (vehDetail && vehDetail.img_stnk) {
+    stnkHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+      '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">STNK</div><img src="' + vehDetail.img_stnk + '" style="width:100%;border-radius:var(--rs);height:80px;object-fit:cover" /></div>' +
+      '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">KTM</div>' + (vehDetail.img_plat ? '<img src="' + vehDetail.img_plat + '" style="width:100%;border-radius:var(--rs);height:80px;object-fit:cover" />' : '<div style="background:var(--bg2);height:80px;border-radius:var(--rs)"></div>') + '</div>' +
+      '</div>';
+  }
+
+  var rows = [
+    ['Nama', insideVeh.nama],
+    ['Plat Nomor', '<strong style="color:var(--accent);font-family:monospace">' + insideVeh.plat + '</strong>'],
+    ['Jenis', insideVeh.jenis === 'motor' ? '🏍 Motor' : '🚗 Mobil'],
+    ['Merk / Warna', (vehDetail ? vehDetail.merk + ' · ' + vehDetail.warna : '-')],
+    ['Durasi Parkir', '<span style="color:var(--accent2);font-weight:700">' + durStr + '</span>'],
+  ];
+
+  document.getElementById('validasi-keluar-content').innerHTML =
+    '<div class="alert alert-w" style="margin-bottom:14px">⚠️ Cocokkan foto dengan kendaraan di depan Anda sebelum mengizinkan keluar!</div>' +
+    imgHtml + stnkHtml +
+    '<div class="result-box">' + rows.map(function(r) { return '<div class="result-row"><span class="r-key">' + r[0] + '</span><span class="r-val">' + r[1] + '</span></div>'; }).join('') + '</div>';
+
+  openModal('modal-validasi-keluar');
+}
+
+function batalValidasiKeluar() {
+  _pendingExitQrId = null;
+  closeModal('modal-validasi-keluar');
+}
+
+// TAHAP 2: Petugas konfirmasi → proses keluar ke API
+async function konfirmasiKeluar() {
+  if (!_pendingExitQrId) return;
+  var qrId = _pendingExitQrId;
+  _pendingExitQrId = null;
+  closeModal('modal-validasi-keluar');
+
+  var alertEl = document.getElementById('scan-out-alert');
+  var resultCard = document.getElementById('result-keluar-card');
+  var resultContent = document.getElementById('result-keluar-content');
+  alertEl.innerHTML = '<div class="alert alert-i">Memproses keluar...</div>';
+
+  var r = await apiFetch('/parking/keluar', { method: 'POST', body: JSON.stringify({ qrId }) });
+  if (!r.ok) { alertEl.innerHTML = '<div class="alert alert-d">' + r.data.message + '</div>'; return; }
+  alertEl.innerHTML = '';
+  var v = r.data.vehicle; var dur = r.data.duration; var now = new Date();
+  resultCard.style.display = 'block';
+  var rows = [['QR ID', v.qrId || qrId], ['Nama', v.nama], ['Plat', v.plat], ['Durasi Parkir', dur]];
+  resultContent.innerHTML = '<div class="alert alert-s">✅ Kendaraan diizinkan keluar!</div><div class="result-box">' + rows.map(function(row) { return '<div class="result-row"><span class="r-key">' + row[0] + '</span><span class="r-val">' + row[1] + '</span></div>'; }).join('') + '</div>';
+  document.getElementById('manual-out').value = '';
+  var logEl = document.getElementById('log-keluar-list');
+  logEl.innerHTML = '<div class="tl-item"><div class="tl-dot tl-a">↑</div><div class="tl-body"><div class="tl-title">' + v.nama + ' — ' + v.plat + '</div><div class="tl-desc">Durasi: ' + dur + '</div><div class="tl-time">' + fmtFull(now) + '</div></div></div>' + logEl.innerHTML;
+  updateDashboard();
+  toast(v.plat + ' keluar (' + dur + ')', 'i');
+}
+
+// ===== DATA KENDARAAN ADMIN =====
+var _kendaraanCache = [];
+async function renderKendaraanTable() {
+  var tbody = document.getElementById('kendaraan-table'); if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text3);text-align:center;padding:24px">Memuat...</td></tr>';
+  var r = await apiFetch('/vehicles');
+  if (!r.ok) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text3);text-align:center;padding:24px">' + r.data.message + '</td></tr>'; return; }
+  _kendaraanCache = r.data.data;
+  _renderKendaraanRows();
+}
+
+function _renderKendaraanRows() {
+  var q = (document.getElementById('search-kendaraan') || {}).value || '';
+  q = q.trim().toLowerCase();
+  var data = _kendaraanCache.filter(function(v) {
+    if (currentVehicleFilter !== 'semua' && v.jenis !== currentVehicleFilter) return false;
+    if (q) return v.plat.toLowerCase().indexOf(q) !== -1 || v.nama.toLowerCase().indexOf(q) !== -1 || v.qr_id.toLowerCase().indexOf(q) !== -1;
+    return true;
+  });
+  var tbody = document.getElementById('kendaraan-table'); if (!tbody) return;
+  if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text3);text-align:center;padding:24px">Tidak ada data kendaraan</td></tr>'; return; }
+  var sb = { mahasiswa: '<span class="badge bb">Mahasiswa</span>', dosen: '<span class="badge bp">Dosen</span>', staff: '<span class="badge ba">Staff</span>' };
+  tbody.innerHTML = data.map(function(v) {
+    return '<tr><td style="color:var(--accent);font-family:monospace;font-size:11px">' + v.qr_id + '</td><td>' + v.nama + '</td><td style="font-family:monospace;font-size:12px">' + v.nim + '</td><td>' + (sb[v.status] || v.status) + '</td><td>' + (v.jenis === 'motor' ? '🏍 Motor' : '🚗 Mobil') + '</td><td style="font-family:monospace;font-weight:700">' + v.plat + '</td><td>' + v.merk + '</td><td>' + v.warna + '</td><td style="font-size:11px;color:var(--text2)">' + fmtFull(v.registered_at) + '</td>' +
+      '<td><div style="display:flex;gap:5px">' +
+      '<button class="btn btn-outline btn-sm" onclick="openEditModal(\'' + v.qr_id + '\')">Edit</button>' +
+      '<button class="btn btn-danger btn-sm" onclick="deleteVehicleAdmin(\'' + v.qr_id + '\')">Hapus</button>' +
+      '</div></td></tr>';
+  }).join('');
+}
+
+function filterByType(type) {
+  currentVehicleFilter = type;
+  document.querySelectorAll('#page-kendaraan .tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + type).classList.add('active');
+  _renderKendaraanRows();
+}
+
+async function deleteVehicleAdmin(qrId) {
+  if (!confirm('Hapus kendaraan ' + qrId + '?')) return;
+  var r = await apiFetch('/vehicles/' + qrId, { method: 'DELETE' });
+  if (!r.ok) { toast(r.data.message, 'e'); return; }
+  toast('Kendaraan dihapus', 'e');
+  renderKendaraanTable(); updateDashboard();
+}
+
+function openEditModal(qrId) {
+  var v = _kendaraanCache.find(function(v) { return v.qr_id === qrId; }); if (!v) return;
+  document.getElementById('edit-qr-id').value = qrId;
+  document.getElementById('edit-nama').value = v.nama;
+  document.getElementById('edit-nim').value = v.nim;
+  document.getElementById('edit-status').value = v.status;
+  document.getElementById('edit-jenis').value = v.jenis;
+  document.getElementById('edit-plat').value = v.plat;
+  document.getElementById('edit-merk').value = v.merk;
+  document.getElementById('edit-warna').value = v.warna;
+  document.getElementById('edit-alert').innerHTML = '';
+  openModal('modal-edit');
+}
+
+function saveEdit() {
+  // Edit via API bisa dikembangkan, untuk sementara update lokal saja
+  var qrId = document.getElementById('edit-qr-id').value;
+  var alertEl = document.getElementById('edit-alert');
+  alertEl.innerHTML = '<div class="alert alert-i">Fitur edit via API akan segera tersedia. Tutup modal ini.</div>';
+  setTimeout(function() { closeModal('modal-edit'); renderKendaraanTable(); }, 2000);
+}
+
+// ===== MANAJEMEN USER =====
+async function renderUsersTable() {
+  var tbody = document.getElementById('users-table'); if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:24px">Memuat...</td></tr>';
+  var r = await apiFetch('/users');
+  if (!r.ok) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:24px">' + r.data.message + '</td></tr>'; return; }
+  var users = r.data.data;
+  if (users.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:24px">Belum ada pengguna terdaftar</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u) {
+    return '<tr><td style="font-family:monospace;font-size:11px;color:var(--text3)">' + u.id + '</td><td style="font-weight:600">' + u.name + '</td><td style="font-family:monospace;font-size:12px">' + u.nim + '</td><td style="font-size:12px;color:var(--text2)">' + u.email + '</td>' +
+      '<td><span class="badge ' + (u.status === 'mahasiswa' ? 'bb' : u.status === 'dosen' ? 'bp' : 'ba') + '">' + u.status + '</span></td>' +
+      '<td><span class="badge bb">user</span></td>' +
+      '<td>' + (u.vehicle_count > 0 ? '<span class="badge bg">' + u.vehicle_count + ' kend.</span>' : '<span style="color:var(--text3);font-size:12px">-</span>') + '</td>' +
+      '<td><button class="btn btn-danger btn-xs" onclick="deleteUser(\'' + u.id + '\')">Hapus</button></td></tr>';
+  }).join('');
+}
+
+async function deleteUser(id) {
+  if (!confirm('Hapus pengguna ini? Semua kendaraan miliknya juga akan dihapus.')) return;
+  var r = await apiFetch('/users/' + id, { method: 'DELETE' });
+  if (!r.ok) { toast(r.data.message, 'e'); return; }
+  toast('Pengguna dihapus', 'e');
+  renderUsersTable(); updateDashboard();
+}
+
+// ===== LOG =====
+var _logCache = [];
+async function renderLogTable() {
+  var tbody = document.getElementById('log-table'); if (!tbody) return;
+  var q = (document.getElementById('log-search') || {}).value || '';
+  var dateVal = (document.getElementById('log-date-filter') || {}).value || '';
+  var params = '?limit=200';
+  if (currentLogFilter !== 'all') params += '&type=' + currentLogFilter;
+  if (dateVal) params += '&date=' + dateVal;
+  if (q) params += '&q=' + encodeURIComponent(q);
+  var r = await apiFetch('/logs' + params);
+  if (!r.ok) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:24px">' + r.data.message + '</td></tr>'; return; }
+  var data = r.data.data;
+  if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:24px">Tidak ada data log</td></tr>'; return; }
+  _logCache = data;
+  tbody.innerHTML = data.map(function(l) {
+    return '<tr><td style="font-family:monospace;font-size:11px">' + fmtFull(l.time) + '</td><td>' + (l.type === 'in' ? '<span class="badge bg">MASUK</span>' : '<span class="badge ba">KELUAR</span>') + '</td><td style="color:var(--accent);font-family:monospace;font-size:11px">' + l.qr_id + '</td><td>' + l.nama + '</td><td style="font-family:monospace;font-weight:700">' + l.plat + '</td><td>' + (l.jenis === 'motor' ? '🏍' : '🚗') + ' ' + l.jenis + '</td><td><span class="badge bb">' + l.status + '</span></td><td style="color:var(--accent2)">' + (l.type === 'out' ? (l.duration || '—') : '—') + '</td></tr>';
+  }).join('');
+}
+
+function filterLog(type) {
+  currentLogFilter = type;
+  document.querySelectorAll('#page-log .tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-log-' + type).classList.add('active');
+  renderLogTable();
+}
+
+function clearLogFilter() {
+  document.getElementById('log-search').value = '';
+  document.getElementById('log-date-filter').value = '';
+  currentLogFilter = 'all';
+  document.querySelectorAll('#page-log .tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-log-all').classList.add('active');
+  renderLogTable();
+}
+
+async function exportLog() {
+  var r = await apiFetch('/logs?limit=10000');
+  if (!r.ok) { toast('Gagal export log', 'e'); return; }
+  var logs = r.data.data;
+  var header = 'Waktu,Aksi,QR_ID,Nama,NIM,Plat,Jenis,Status,Durasi\n';
+  var rows = logs.map(function(l) {
+    return '"' + fmtFull(l.time) + '","' + (l.type === 'in' ? 'MASUK' : 'KELUAR') + '","' + l.qr_id + '","' + l.nama + '","' + l.nim + '","' + l.plat + '","' + l.jenis + '","' + l.status + '","' + (l.duration || '-') + '"';
+  }).join('\n');
+  var blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'smartpark-log-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
+  toast('Log di-export ke CSV', 'i');
+}
+
+// ===== KAMERA SCANNER =====
+function toggleCamera(type) {
+  if (type === 'in' ? cameraInActive : cameraOutActive) stopCamera(type); else startCamera(type);
+}
+
+function startCamera(type) {
+  var readerId = type === 'in' ? 'reader' : 'reader-out';
+  var wrapperId = type === 'in' ? 'cam-wrap-in' : 'cam-wrap-out';
+  var btnId = type === 'in' ? 'btn-cam-in' : 'btn-cam-out';
+  var statusId = type === 'in' ? 'cam-status-in' : 'cam-status-out';
+  document.getElementById(wrapperId).style.display = 'block';
+  document.getElementById(btnId).textContent = 'Tutup Kamera';
+  document.getElementById(btnId).classList.add('active');
+  var scanner = new Html5Qrcode(readerId);
+  if (type === 'in') { scannerIn = scanner; cameraInActive = true; } else { scannerOut = scanner; cameraOutActive = true; }
+  scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 250 } },
+    function(decoded) {
+      document.getElementById(statusId).textContent = 'Terdeteksi: ' + decoded;
+      stopCamera(type);
+      var fieldId = type === 'in' ? 'manual-in' : 'manual-out';
+      document.getElementById(fieldId).value = decoded.trim().toUpperCase();
+      if (type === 'in') processEntry(decoded.trim().toUpperCase());
+      else processExit(decoded.trim().toUpperCase());
+    },
+    function() {}
+  ).catch(function() {
+    document.getElementById(statusId).textContent = 'Kamera tidak bisa dibuka. Izinkan akses kamera di browser.';
+    document.getElementById(wrapperId).style.display = 'none';
+    document.getElementById(btnId).textContent = 'Buka Kamera Scanner';
+    document.getElementById(btnId).classList.remove('active');
+    if (type === 'in') cameraInActive = false; else cameraOutActive = false;
+  });
+}
+
+function stopCamera(type) {
+  var scanner = type === 'in' ? scannerIn : scannerOut;
+  var wrapperId = type === 'in' ? 'cam-wrap-in' : 'cam-wrap-out';
+  var btnId = type === 'in' ? 'btn-cam-in' : 'btn-cam-out';
+  var statusId = type === 'in' ? 'cam-status-in' : 'cam-status-out';
+  if (scanner) {
+    scanner.stop().then(function() {
+      document.getElementById(wrapperId).style.display = 'none';
+      document.getElementById(btnId).textContent = 'Buka Kamera Scanner';
+      document.getElementById(btnId).classList.remove('active');
+      document.getElementById(statusId).textContent = '';
+    }).catch(function() {});
+  }
+  if (type === 'in') { cameraInActive = false; scannerIn = null; } else { cameraOutActive = false; scannerOut = null; }
+}
+
+// ===== MODAL CLOSE ON BACKDROP =====
+['modal-edit','modal-foto','modal-logout','modal-passwd','modal-hapus-kend','modal-lupa-pass','modal-validasi-keluar'].forEach(function(id) {
+  document.getElementById(id).addEventListener('click', function(e) { if (e.target === this) closeModal(id); });
+});
+</script>
+
+<!-- MODAL VALIDASI KELUAR -->
+<div class="modal-overlay" id="modal-validasi-keluar">
+  <div class="modal-box" style="max-width:500px">
+    <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Validasi Kendaraan Keluar</div>
+    <div id="validasi-keluar-content"></div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-outline btn-sm" onclick="batalValidasiKeluar()" style="flex:1">Batal</button>
+      <button class="btn btn-danger btn-sm" onclick="konfirmasiKeluar()" style="flex:1">✅ Izinkan Keluar</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
